@@ -1,53 +1,65 @@
 import { useState } from 'react';
 import { WeatherType } from '../types/WeatherTypes';
+import { processDate, transformKey } from '../utilities/Processors';
 
 interface WeatherCardProps {
     data: WeatherType;
+    onClickHandler: () => void;
 }
-const transformKey = (key: string) => {
-    const arr = key
-        .split('_')
-        .map((item) => item.charAt(0).toUpperCase() + item.slice(1));
-    const result = arr.reduce((acc, curr) => {
-        return `${acc.charAt(0).toUpperCase()}${acc.slice(1)} ${curr
-            .charAt(0)
-            .toUpperCase()}${curr.slice(1)}`;
-    });
-    return result;
-};
-export const WeatherCard = ({ data }: WeatherCardProps) => {
-    const [currentData] = useState<WeatherType['current']>(data.current);
-    const [currentKeys] = useState<string[]>(Object.keys(data.current));
-    // console.log(`Current keys: ${JSON.stringify(currentData['dt'], null, 2)}`)
-    // const date = new Date(current.dt);
-
+export const WeatherCard = ({ data, onClickHandler }: WeatherCardProps) => {
+    const currentData = data.current;
+    const currentKeys = Object.keys(currentData);
     return (
-        <div className="row">
-            {currentKeys.map((key: string, index: number) => {
-                return (
-                    <div
-                        className="card text-bg-dark mb-3"
-                        style={{ maxWidth: '18rem', margin: '10px' }}
-                        key={index}
-                    >
-                        <div className="card-header">{data['timezone']}</div>
-                        <div className="card-body">
-                            <h5 className="card-title">Lat:{data.lat} / Lon:{data.lon}</h5>
-                            <p className="card-text">
-                                {transformKey(key)}: {`${currentData[key]}`}
-                            </p>
-                        </div>
-                        <button
-                            className="btn btn-outline-danger"
-                            onClick={() => {
-                                // onClickHandler(index);
-                            }}
-                        >
-                            Delete
-                        </button>
+        <>
+            <div
+                className="card mb-3 text-bg-info text-start"
+                style={{ width: '100%', opacity: '0.9'}}
+            >
+                <div className="row g-0">
+                    <div className="col-md-4">
+                        <img
+                            src={`https://openweathermap.org/img/wn/${currentData.weather[0]?.icon}@2x.png`}
+                            className="img-fluid rounded-start"
+                            alt="..."
+                        />
                     </div>
-                );
-            })}
-        </div>
+                    <div className="col-md-8">
+                        <div className="card-body">
+                            <h5 className="card-title">{data.reverse.city}</h5>
+                            {currentKeys.map((key: string) => {
+                                return (
+                                    <li className="list-group-item">
+                                        <small className="text-body-secondary">
+                                            {key !== 'dt'
+                                                ? `${transformKey(key)}: `
+                                                : ''}{' '}
+                                            {`${
+                                                key === 'dt' ||
+                                                key === 'sunset' ||
+                                                key === 'sunrise'
+                                                    ? processDate(
+                                                          currentData[key]
+                                                      )
+                                                    : // eslint-disable-next-line
+                                                      // @ts-ignore
+                                                      currentData[key]
+                                            }`}
+                                        </small>
+                                    </li>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+                <button
+                    className="btn btn-outline-danger"
+                    onClick={() => {
+                        onClickHandler();
+                    }}
+                >
+                    Close
+                </button>
+            </div>
+        </>
     );
 };

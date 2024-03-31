@@ -1,4 +1,11 @@
 export type WeatherType = {
+    reverse: {
+        continentCode: string;
+        countryCode: string;
+        principalSubdivision: string;
+        city: string;
+        postcode: string;
+    };
     lat: number;
     lon: number;
     timezone: string;
